@@ -1,0 +1,554 @@
+{
+  "info": {
+    "name": "ArtemisApiTemplate",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Registro",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.access_token) {",
+                  "  pm.collectionVariables.set('token', res.access_token);",
+                  "  console.log('Token salvo automaticamente');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/registro",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"empresa_nome\": \"Minha Empresa\",\n  \"empresa_documento\": \"12.345.678/0001-90\",\n  \"empresa_email\": \"contato@empresa.com\",\n  \"empresa_telefone\": \"(11) 99999-9999\",\n  \"nome\": \"João Silva\",\n  \"email\": \"admin@empresa.com\",\n  \"senha\": \"senha123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.access_token) {",
+                  "  pm.collectionVariables.set('token', res.access_token);",
+                  "  console.log('Token salvo automaticamente');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@empresa.com\",\n  \"senha\": \"senha123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Recuperar Senha",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/recuperar-senha",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@empresa.com\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Redefinir Senha",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/redefinir-senha",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"TOKEN_64_CHARS_AQUI\",\n  \"nova_senha\": \"novaSenha123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuario",
+      "item": [
+        {
+          "name": "Listar Usuários",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/usuario?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["usuario"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Meu Perfil",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/usuario/perfil",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Buscar Usuário por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/usuario/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Criar Usuário",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/usuario",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"João Silva\",\n  \"email\": \"joao@empresa.com\",\n  \"senha\": \"senha123\",\n  \"role\": \"membro\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Atualizar Usuário",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/usuario/1",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"João Atualizado\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Remover Usuário",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/usuario/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Empresa",
+      "item": [
+        {
+          "name": "Listar Empresas",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/empresa?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["empresa"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Buscar Empresa por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/empresa/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Criar Empresa",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/empresa",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Minha Empresa\",\n  \"documento\": \"12.345.678/0001-90\",\n  \"email\": \"contato@empresa.com\",\n  \"telefone\": \"(11) 99999-9999\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Atualizar Empresa",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/empresa/1",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Empresa Atualizada\",\n  \"telefone\": \"(11) 88888-8888\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Remover Empresa",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/empresa/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Plano",
+      "item": [
+        {
+          "name": "Listar Planos",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/plano",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Assinatura",
+      "item": [
+        {
+          "name": "Assinatura Ativa",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/assinatura/ativa",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Criar Assinatura",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/assinatura",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"planoId\": 1,\n  \"data_inicio\": \"2025-01-01\",\n  \"data_fim\": \"2025-12-31\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pagamento",
+      "item": [
+        {
+          "name": "Listar Pagamentos",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/pagamento?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["pagamento"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Buscar Pagamento por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/pagamento/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Registrar Pagamento",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/pagamento",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assinaturaId\": 1,\n  \"valor\": 99.90,\n  \"status\": \"pago\",\n  \"transaction_id\": \"txn_abc123\",\n  \"data_pagamento\": \"2026-02-27T10:00:00Z\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Configuracao",
+      "item": [
+        {
+          "name": "Listar Configurações",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/configuracao",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Buscar por Chave",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/configuracao/nome_sistema",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Criar Configuração",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/configuracao",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chave\": \"nome_sistema\",\n  \"valor\": \"Minha Plataforma\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Atualizar Configuração",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/configuracao/nome_sistema",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"valor\": \"Novo Nome\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Remover Configuração",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/configuracao/nome_sistema",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Log",
+      "item": [
+        {
+          "name": "Listar Logs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/log?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["log"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notificacao",
+      "item": [
+        {
+          "name": "Listar Notificações",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/notificacao?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["notificacao"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Contar Não Lidas",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/notificacao/nao-lidas",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Marcar uma como Lida",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/notificacao/1/lida",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Marcar Todas como Lidas",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/notificacao/todas-lidas",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chamado",
+      "item": [
+        {
+          "name": "Listar Chamados",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/chamado?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["chamado"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Buscar Chamado por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/chamado/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Criar Chamado",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/chamado",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assunto\": \"Problema ao acessar o sistema\",\n  \"prioridade\": \"alta\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Adicionar Mensagem",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/chamado/1/mensagem",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mensagem\": \"Estou com erro ao fazer login desde ontem.\",\n  \"interno\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Fechar Chamado",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/chamado/1/fechar",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Atualizar Status/Prioridade (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/chamado/1",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"respondido\",\n  \"prioridade\": \"media\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
