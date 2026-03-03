@@ -40,10 +40,12 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
+    const raw = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
+    const apiUrl = /^https?:\/\//.test(raw) ? raw : `http://${raw}`;
     return [
       {
         source: "/api/proxy/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
+        destination: `${apiUrl}/:path*`,
       },
     ];
   },
