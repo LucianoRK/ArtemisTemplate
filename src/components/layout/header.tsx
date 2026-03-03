@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { Bell, Moon, Sun, LogOut, User, Settings, ChevronDown } from "lucide-react";
+import { Bell, Moon, Sun, LogOut, User, Settings, ChevronDown, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -46,7 +46,7 @@ export function Header() {
 
         {/* Notifications */}
         <Button variant="ghost" size="icon" className="relative rounded-full" asChild>
-          <Link href="/dashboard/notificacoes">
+          <Link href="/notificacoes">
             <Bell className="h-4 w-4" />
             {count > 0 && (
               <Badge
@@ -89,13 +89,19 @@ export function Header() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href="/dashboard/perfil">
+              <Link href="/perfil">
                 <User className="mr-2 h-4 w-4" />
                 Meu perfil
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/dashboard/configuracoes">
+              <Link href="/empresa">
+                <Building2 className="mr-2 h-4 w-4" />
+                Empresa
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/configuracoes">
                 <Settings className="mr-2 h-4 w-4" />
                 Configurações
               </Link>

@@ -15,7 +15,6 @@ export const api = axios.create({
 api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
   if (typeof window !== "undefined") {
     const token = useAuthStore.getState().token;
-    console.log("[api] token no store:", token ? `${token.slice(0, 20)}...` : "VAZIO");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

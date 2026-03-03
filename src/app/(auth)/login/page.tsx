@@ -40,19 +40,13 @@ export default function LoginPage() {
     });
 
     if (!res.ok) {
-      toast.error("Email ou senha inválidos");
+      const err = await res.json().catch(() => ({}));
+      toast.error(err.error ?? "Email ou senha inválidos");
       return;
     }
 
-    const { user } = await res.json();
-    const token = document.cookie
-      .split("; ")
-      .find((c) => c.startsWith("auth_user="))
-      ?.split("=")
-      .slice(1)
-      .join("=");
-    const parsed = token ? JSON.parse(decodeURIComponent(token)) : null;
-    setAuth(user, parsed?.token ?? "");
+    const { user, token } = await res.json();
+    setAuth(user, token);
 
     toast.success("Login realizado com sucesso!");
     router.push("/dashboard");

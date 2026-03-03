@@ -10,8 +10,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle2, Zap, Crown, Building } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { toast } from "sonner";
-import { getStripe } from "@/lib/stripe";
+import { loadStripe } from "@stripe/stripe-js";
 import type { Plano } from "@/types";
+
+const getStripe = () => loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 const planIcons: Record<string, React.ElementType> = {
   Starter: Zap,

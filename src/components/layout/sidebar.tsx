@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
-  LayoutDashboard, Users, Building2, CreditCard, Receipt,
-  Settings, FileText, Bell, Headphones, Zap, ChevronLeft, ChevronRight,
+  LayoutDashboard, Users, CreditCard, Receipt,
+  FileText, Headphones, Zap, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -20,47 +20,32 @@ const navItems = [
   },
   {
     title: "Usuários",
-    href: "/dashboard/usuarios",
+    href: "/usuarios",
     icon: Users,
   },
   {
-    title: "Empresas",
-    href: "/dashboard/empresas",
-    icon: Building2,
-  },
-  {
     title: "Assinatura",
-    href: "/dashboard/assinatura",
+    href: "/assinatura",
     icon: Zap,
   },
   {
     title: "Pagamentos",
-    href: "/dashboard/pagamentos",
+    href: "/pagamentos",
     icon: CreditCard,
   },
   {
     title: "Chamados",
-    href: "/dashboard/chamados",
+    href: "/chamados",
     icon: Headphones,
   },
   {
-    title: "Notificações",
-    href: "/dashboard/notificacoes",
-    icon: Bell,
-  },
-  {
     title: "Logs",
-    href: "/dashboard/logs",
+    href: "/logs",
     icon: FileText,
   },
   {
-    title: "Configurações",
-    href: "/dashboard/configuracoes",
-    icon: Settings,
-  },
-  {
     title: "Pagamento Registrar",
-    href: "/dashboard/pagamentos/registrar",
+    href: "/pagamentos/registrar",
     icon: Receipt,
     hidden: true,
   },
@@ -96,7 +81,7 @@ export function Sidebar({ className }: SidebarProps) {
               <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center">
                 <Zap className="h-4 w-4 text-white" />
               </div>
-              <span className="font-bold text-lg bg-clip-text text-transparent gradient-primary">
+              <span className="font-bold text-lg bg-gradient-to-r from-violet-500 to-purple-600 bg-clip-text text-transparent">
                 Artemis
               </span>
             </Link>

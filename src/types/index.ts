@@ -31,6 +31,7 @@ export interface Usuario {
   empresa_id: number;
   empresa?: Empresa;
   ativo: boolean;
+  deleted_at?: string | null;
   criado_em: string;
   atualizado_em: string;
 }
@@ -58,6 +59,7 @@ export interface Empresa {
   email: string;
   telefone: string;
   ativo: boolean;
+  deleted_at?: string | null;
   criado_em: string;
   atualizado_em: string;
 }
@@ -85,11 +87,12 @@ export interface Plano {
   nome: string;
   descricao: string;
   preco: number;
+  valor?: string;
   intervalo: PlanoIntervalo;
-  stripe_price_id: string;
+  stripe_price_id?: string;
   recursos: string[];
-  ativo: boolean;
-  criado_em: string;
+  ativo?: boolean;
+  criado_em?: string;
 }
 
 // ─── Assinatura ───────────────────────────────────────────────────────────────

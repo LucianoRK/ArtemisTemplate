@@ -54,7 +54,7 @@ export default function ChamadoDetailPage({ params }: { params: Promise<{ id: st
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-4">
         <Button variant="outline" size="icon" asChild>
-          <Link href="/dashboard/chamados">
+          <Link href="/chamados">
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>

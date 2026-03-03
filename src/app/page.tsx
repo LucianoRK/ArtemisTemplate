@@ -4,9 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Zap, Shield, Users, CreditCard, Bell, Headphones,
-  BarChart3, Globe, Lock, CheckCircle2, ArrowRight, Star,
+  BarChart3, Lock, CheckCircle2, ArrowRight, Star,
 } from "lucide-react";
 import Link from "next/link";
+import { serverApi } from "@/services/api";
+import { formatCurrency } from "@/lib/utils";
+import type { Plano } from "@/types";
 
 const features = [
   {
@@ -41,58 +44,6 @@ const features = [
   },
 ];
 
-const plans = [
-  {
-    name: "Starter",
-    price: "R$ 99",
-    period: "/mês",
-    description: "Ideal para pequenas empresas",
-    features: [
-      "Até 5 usuários",
-      "1 empresa",
-      "Suporte por email",
-      "Relatórios básicos",
-      "5GB de armazenamento",
-    ],
-    cta: "Começar agora",
-    popular: false,
-  },
-  {
-    name: "Pro",
-    price: "R$ 299",
-    period: "/mês",
-    description: "Para equipes em crescimento",
-    features: [
-      "Até 25 usuários",
-      "5 empresas",
-      "Suporte prioritário",
-      "Relatórios avançados",
-      "50GB de armazenamento",
-      "API access",
-      "Integrações avançadas",
-    ],
-    cta: "Assinar Pro",
-    popular: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Sob consulta",
-    period: "",
-    description: "Para grandes organizações",
-    features: [
-      "Usuários ilimitados",
-      "Empresas ilimitadas",
-      "Suporte dedicado 24/7",
-      "Relatórios customizados",
-      "Armazenamento ilimitado",
-      "SLA garantido",
-      "Onboarding personalizado",
-    ],
-    cta: "Falar com vendas",
-    popular: false,
-  },
-];
-
 const testimonials = [
   {
     name: "Ana Silva",
@@ -120,7 +71,23 @@ const testimonials = [
   },
 ];
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  let plans: Plano[] = [];
+  try {
+    const res = await serverApi().get("/plano");
+    const list = Array.isArray(res.data) ? res.data : (res.data?.data ?? []);
+    plans = list
+      .map((p: Plano & { valor?: string }) => ({
+        ...p,
+        preco: Number(p.preco ?? p.valor ?? 0),
+        intervalo: p.intervalo ?? "mensal",
+        recursos: p.recursos ?? [],
+      }))
+      .filter((p: Plano) => p.ativo !== false);
+  } catch {
+    // API unavailable — section will be empty
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -140,7 +107,7 @@ export default function LandingPage() {
 
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
             Gerencie seu SaaS com{" "}
-            <span className="bg-clip-text text-transparent gradient-primary">
+            <span className="bg-gradient-to-r from-violet-500 to-purple-600 bg-clip-text text-transparent">
               total controle
             </span>
           </h1>
@@ -209,83 +176,52 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Tech stack */}
-      <section className="py-16 border-y">
-        <div className="container">
-          <p className="text-center text-sm text-muted-foreground mb-8">
-            Construído com as melhores tecnologias do mercado
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 text-muted-foreground">
-            {["Next.js 15", "React 19", "TypeScript", "Tailwind CSS", "shadcn/ui", "NextAuth.js", "Stripe", "TanStack Query"].map(
-              (tech) => (
-                <div key={tech} className="flex items-center gap-2">
-                  <Globe className="h-4 w-4" />
-                  <span className="text-sm font-medium">{tech}</span>
-                </div>
-              )
-            )}
-          </div>
-        </div>
-      </section>
-
       {/* Plans */}
-      <section id="planos" className="py-20">
-        <div className="container">
-          <div className="text-center mb-16">
-            <Badge variant="outline" className="mb-4">Planos</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Preço transparente e justo
-            </h2>
-            <p className="text-muted-foreground">
-              Escolha o plano ideal para o tamanho do seu negócio
-            </p>
-          </div>
+      {plans.length > 0 && (
+        <section id="planos" className="py-20">
+          <div className="container">
+            <div className="text-center mb-16">
+              <Badge variant="outline" className="mb-4">Planos</Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Preço transparente e justo
+              </h2>
+              <p className="text-muted-foreground">
+                Escolha o plano ideal para o tamanho do seu negócio
+              </p>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {plans.map((plan) => (
-              <Card
-                key={plan.name}
-                className={`relative flex flex-col ${
-                  plan.popular
-                    ? "border-primary shadow-xl shadow-primary/10 scale-105"
-                    : ""
-                }`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="px-3 py-1">Mais popular</Badge>
-                  </div>
-                )}
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg">{plan.name}</CardTitle>
-                  <p className="text-sm text-muted-foreground">{plan.description}</p>
-                  <div className="flex items-baseline gap-1 mt-2">
-                    <span className="text-3xl font-bold">{plan.price}</span>
-                    <span className="text-muted-foreground text-sm">{plan.period}</span>
-                  </div>
-                </CardHeader>
-                <CardContent className="flex-1 flex flex-col gap-4">
-                  <ul className="space-y-2.5 flex-1">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-2 text-sm">
-                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button
-                    variant={plan.popular ? "gradient" : "outline"}
-                    className="w-full mt-4"
-                    asChild
-                  >
-                    <Link href="/registro">{plan.cta}</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              {plans.map((plan) => (
+                <Card key={plan.id} className="relative flex flex-col">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-lg">{plan.nome}</CardTitle>
+                    <p className="text-sm text-muted-foreground">{plan.descricao}</p>
+                    <div className="flex items-baseline gap-1 mt-2">
+                      <span className="text-3xl font-bold">{formatCurrency(plan.preco)}</span>
+                      <span className="text-muted-foreground text-sm">
+                        /{plan.intervalo === "mensal" ? "mês" : "ano"}
+                      </span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col gap-4">
+                    <ul className="space-y-2.5 flex-1">
+                      {plan.recursos.map((recurso) => (
+                        <li key={recurso} className="flex items-center gap-2 text-sm">
+                          <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                          {recurso}
+                        </li>
+                      ))}
+                    </ul>
+                    <Button variant="outline" className="w-full mt-4" asChild>
+                      <Link href="/registro">Assinar</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Testimonials */}
       <section className="py-20 bg-muted/30">

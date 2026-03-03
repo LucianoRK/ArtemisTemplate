@@ -15,14 +15,38 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { authService } from "@/services/auth.service";
 
+function validarCNPJ(cnpj: string): boolean {
+  const c = cnpj.replace(/\D/g, "");
+  if (c.length !== 14 || /^(\d)\1+$/.test(c)) return false;
+  const calc = (len: number) => {
+    let sum = 0;
+    let pos = len - 7;
+    for (let i = len; i >= 1; i--) {
+      sum += parseInt(c[len - i]) * pos--;
+      if (pos < 2) pos = 9;
+    }
+    return sum % 11 < 2 ? 0 : 11 - (sum % 11);
+  };
+  return calc(12) === parseInt(c[12]) && calc(13) === parseInt(c[13]);
+}
+
 const schema = z.object({
   empresa_nome: z.string().min(2, "Nome da empresa obrigatório"),
-  empresa_documento: z.string().min(14, "CNPJ inválido"),
+  empresa_documento: z
+    .string()
+    .min(1, "CNPJ obrigatório")
+    .refine((v) => validarCNPJ(v), "CNPJ inválido"),
   empresa_email: z.string().email("Email inválido"),
-  empresa_telefone: z.string().min(10, "Telefone inválido"),
+  empresa_telefone: z
+    .string()
+    .regex(/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/, "Telefone inválido"),
   nome: z.string().min(2, "Nome obrigatório"),
   email: z.string().email("Email inválido"),
-  senha: z.string().min(6, "Mínimo 6 caracteres"),
+  senha: z
+    .string()
+    .min(8, "Mínimo 8 caracteres")
+    .regex(/[A-Z]/, "Deve conter ao menos uma letra maiúscula")
+    .regex(/[0-9]/, "Deve conter ao menos um número"),
   confirmar_senha: z.string(),
 }).refine((data) => data.senha === data.confirmar_senha, {
   message: "Senhas não conferem",
@@ -65,15 +89,8 @@ export default function RegistroPage() {
         return;
       }
 
-      const { user } = await res.json();
-      const raw = document.cookie
-        .split("; ")
-        .find((c) => c.startsWith("auth_user="))
-        ?.split("=")
-        .slice(1)
-        .join("=");
-      const parsed = raw ? JSON.parse(decodeURIComponent(raw)) : null;
-      setAuth(user, parsed?.token ?? "");
+      const { user, token } = await res.json();
+      setAuth(user, token);
 
       toast.success("Conta criada com sucesso! Bem-vindo ao Artemis!");
       router.push("/dashboard");

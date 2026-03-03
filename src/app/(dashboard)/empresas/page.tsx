@@ -104,8 +104,8 @@ export default function EmpresasPage() {
       key: "ativo",
       header: "Status",
       cell: (row: Empresa) => (
-        <Badge variant={row.ativo ? "success" : "outline"}>
-          {row.ativo ? "Ativa" : "Inativa"}
+        <Badge variant={!row.deleted_at ? "success" : "outline"}>
+          {!row.deleted_at ? "Ativa" : "Inativa"}
         </Badge>
       ),
     },

@@ -7,8 +7,8 @@ import type {
 
 export const configuracaoService = {
   async listar(): Promise<Configuracao[]> {
-    const res = await api.get<Configuracao[]>("/configuracao");
-    return res.data;
+    const res = await api.get("/configuracao");
+    return Array.isArray(res.data) ? res.data : (res.data?.data ?? []);
   },
 
   async buscarPorChave(chave: string): Promise<Configuracao> {

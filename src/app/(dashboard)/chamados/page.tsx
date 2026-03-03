@@ -112,7 +112,7 @@ export default function ChamadosPage() {
       header: "Ações",
       cell: (row: Chamado) => (
         <Button size="icon" variant="ghost" asChild>
-          <Link href={`/dashboard/chamados/${row.id}`}>
+          <Link href={`/chamados/${row.id}`}>
             <Eye className="h-4 w-4" />
           </Link>
         </Button>

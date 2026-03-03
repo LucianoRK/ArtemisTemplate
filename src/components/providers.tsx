@@ -5,25 +5,22 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "sonner";
 import { useState, useEffect } from "react";
-import { useAuthStore, type AuthUser } from "@/store/auth.store";
+import { useAuthStore } from "@/store/auth.store";
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const setAuth = useAuthStore((s) => s.setAuth);
 
   useEffect(() => {
-    const raw = document.cookie
-      .split("; ")
-      .find((c) => c.startsWith("auth_user="))
-      ?.split("=")
-      .slice(1)
-      .join("=");
-    if (raw) {
-      try {
-        const parsed = JSON.parse(decodeURIComponent(raw));
-        const { token, ...user } = parsed as AuthUser & { token: string };
-        setAuth(user, token);
-      } catch {}
-    }
+    // Rehydrate auth state on page refresh via secure server endpoint.
+    // The httpOnly auth_token cookie is read server-side — token never exposed to JS directly.
+    fetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.user && data?.token) {
+          setAuth(data.user, data.token);
+        }
+      })
+      .catch(() => {});
   }, [setAuth]);
 
   return <>{children}</>;

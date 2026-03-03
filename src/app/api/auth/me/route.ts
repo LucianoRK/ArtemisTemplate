@@ -1,0 +1,29 @@
+import { NextRequest, NextResponse } from "next/server";
+import { serverApi } from "@/services/api";
+import type { Usuario } from "@/types";
+
+// Rehydrates auth state on page refresh — reads httpOnly cookie, returns user + token
+export async function GET(request: NextRequest) {
+  const token = request.cookies.get("auth_token")?.value;
+
+  if (!token) {
+    return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+  }
+
+  try {
+    const res = await serverApi(token).get<Usuario>("/usuario/perfil");
+    const perfil = res.data;
+
+    const user = {
+      id: String(perfil.id),
+      name: perfil.nome,
+      email: perfil.email,
+      role: perfil.role,
+      empresa_id: perfil.empresa_id,
+    };
+
+    return NextResponse.json({ user, token });
+  } catch {
+    return NextResponse.json({ error: "Sessão inválida" }, { status: 401 });
+  }
+}
