@@ -1,10 +1,17 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "@/store/auth.store";
 
+function normalizeApiUrl(url: string): string {
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    return `http://${url}`;
+  }
+  return url;
+}
+
 const API_URL =
   typeof window !== "undefined"
     ? "/api/proxy"
-    : process.env.NEXT_PUBLIC_API_URL;
+    : normalizeApiUrl(process.env.API_URL ?? "");
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -41,7 +48,7 @@ api.interceptors.response.use(
 
 export const serverApi = (token?: string) =>
   axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
+    baseURL: normalizeApiUrl(process.env.API_URL ?? ""),
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
