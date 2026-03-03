@@ -26,7 +26,14 @@ api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401 && typeof window !== "undefined") {
-      window.location.href = "/login";
+      const { initialized } = useAuthStore.getState();
+      // Only redirect if auth was already initialized. During the initial page load,
+      // the store is empty and queries may fire before /api/auth/me completes —
+      // redirecting then would create a redirect loop with the middleware.
+      if (initialized) {
+        useAuthStore.getState().clearAuth();
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   }

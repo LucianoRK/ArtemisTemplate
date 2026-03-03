@@ -9,6 +9,7 @@ import { useAuthStore } from "@/store/auth.store";
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const setAuth = useAuthStore((s) => s.setAuth);
+  const setInitialized = useAuthStore((s) => s.setInitialized);
 
   useEffect(() => {
     // Rehydrate auth state on page refresh via secure server endpoint.
@@ -20,8 +21,13 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
           setAuth(data.user, data.token);
         }
       })
-      .catch(() => {});
-  }, [setAuth]);
+      .catch(() => {})
+      .finally(() => {
+        // Mark auth check as complete — api.ts interceptor uses this to decide
+        // whether a 401 means "session expired" (redirect) or "still initializing" (ignore).
+        setInitialized();
+      });
+  }, [setAuth, setInitialized]);
 
   return <>{children}</>;
 }
