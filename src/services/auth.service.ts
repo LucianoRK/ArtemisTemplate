@@ -5,7 +5,11 @@ import type {
   RegistroRequest,
 } from "@/types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+// No client side, usa o proxy Next.js; no server side, lê API_URL direto
+const API_URL =
+  typeof window !== "undefined"
+    ? "/api/proxy"
+    : (process.env.API_URL ?? "");
 
 // Use direct axios for auth (no token needed)
 const authApi = axios.create({
