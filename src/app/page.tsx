@@ -338,8 +338,8 @@ export default async function LandingPage() {
               © {new Date().getFullYear()} Artemis. Todos os direitos reservados.
             </p>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <Link href="#" className="hover:text-foreground">Privacidade</Link>
-              <Link href="#" className="hover:text-foreground">Termos</Link>
+              <Link href="/privacidade" className="hover:text-foreground">Privacidade</Link>
+              <Link href="/termos" className="hover:text-foreground">Termos</Link>
               <Link href="#" className="hover:text-foreground">Contato</Link>
             </div>
           </div>

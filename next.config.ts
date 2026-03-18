@@ -17,12 +17,12 @@ const securityHeaders = [
     value: [
       "default-src 'self'",
       // Next.js RSC hydration requires unsafe-inline; remove when nonce-based CSP is implemented
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https:",
       "font-src 'self'",
-      "connect-src 'self' https://api.stripe.com",
-      "frame-src https://js.stripe.com",
+      "connect-src 'self'",
+      "frame-src 'none'",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
@@ -39,16 +39,8 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  async rewrites() {
-    const raw = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
-    const apiUrl = /^https?:\/\//.test(raw) ? raw : `http://${raw}`;
-    return [
-      {
-        source: "/api/proxy/:path*",
-        destination: `${apiUrl}/:path*`,
-      },
-    ];
-  },
+  // Proxy for /api/proxy/* is handled by src/app/api/proxy/[...path]/route.ts
+  // which forwards requests to API_URL with Authorization header from cookie fallback.
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
@@ -58,7 +50,7 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: {
-      allowedOrigins: ["localhost:3000"],
+      allowedOrigins: ["localhost:3001", "localhost:3000"],
     },
   },
 };

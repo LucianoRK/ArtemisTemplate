@@ -7,6 +7,8 @@ const publicRoutes = [
   "/registro",
   "/recuperar-senha",
   "/redefinir-senha",
+  "/privacidade",
+  "/termos",
 ];
 
 // API routes that don't require authentication
@@ -14,12 +16,12 @@ const publicApiRoutes = [
   "/api/auth/login",
   "/api/auth/logout",
   "/api/auth/me",
-  "/api/webhook/stripe",
+  "/api/webhook/mercadopago",
 ];
 
 const authRoutes = ["/login", "/registro", "/recuperar-senha", "/redefinir-senha"];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("auth_token")?.value;
 

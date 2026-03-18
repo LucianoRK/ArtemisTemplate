@@ -11,4 +11,9 @@ export const assinaturaService = {
     const res = await api.post<Assinatura>("/assinatura", data);
     return res.data;
   },
+
+  async checkout(planoId: number): Promise<{ init_point: string }> {
+    const res = await api.post<{ init_point: string }>("/assinatura/checkout", { plano_id: planoId });
+    return res.data;
+  },
 };

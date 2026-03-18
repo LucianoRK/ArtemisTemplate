@@ -9,45 +9,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Mail, Lock, User, Building2, Phone, FileText } from "lucide-react";
+import { Mail, Lock, User } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { authService } from "@/services/auth.service";
 
-function validarCNPJ(cnpj: string): boolean {
-  const c = cnpj.replace(/\D/g, "");
-  if (c.length !== 14 || /^(\d)\1+$/.test(c)) return false;
-  const calc = (len: number) => {
-    let sum = 0;
-    let pos = len - 7;
-    for (let i = len; i >= 1; i--) {
-      sum += parseInt(c[len - i]) * pos--;
-      if (pos < 2) pos = 9;
-    }
-    return sum % 11 < 2 ? 0 : 11 - (sum % 11);
-  };
-  return calc(12) === parseInt(c[12]) && calc(13) === parseInt(c[13]);
-}
-
 const schema = z.object({
-  empresa_nome: z.string().min(2, "Nome da empresa obrigatório"),
-  empresa_documento: z
-    .string()
-    .min(1, "CNPJ obrigatório")
-    .refine((v) => validarCNPJ(v), "CNPJ inválido"),
-  empresa_email: z.string().email("Email inválido"),
-  empresa_telefone: z
-    .string()
-    .regex(/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/, "Telefone inválido"),
   nome: z.string().min(2, "Nome obrigatório"),
   email: z.string().email("Email inválido"),
-  senha: z
-    .string()
-    .min(8, "Mínimo 8 caracteres")
-    .regex(/[A-Z]/, "Deve conter ao menos uma letra maiúscula")
-    .regex(/[0-9]/, "Deve conter ao menos um número"),
+  senha: z.string().min(6, "Mínimo 6 caracteres"),
   confirmar_senha: z.string(),
+  aceitar_termos: z.literal(true, { errorMap: () => ({ message: "Você deve aceitar os termos para continuar" }) }),
 }).refine((data) => data.senha === data.confirmar_senha, {
   message: "Senhas não conferem",
   path: ["confirmar_senha"],
@@ -68,10 +40,6 @@ export default function RegistroPage() {
   const onSubmit = async (data: FormData) => {
     try {
       await authService.registro({
-        empresa_nome: data.empresa_nome,
-        empresa_documento: data.empresa_documento,
-        empresa_email: data.empresa_email,
-        empresa_telefone: data.empresa_telefone,
         nome: data.nome,
         email: data.email,
         senha: data.senha,
@@ -108,136 +76,85 @@ export default function RegistroPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* Company section */}
-          <div className="space-y-1">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Dados da Empresa
-            </p>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="nome">Seu nome completo</Label>
+            <Input
+              id="nome"
+              placeholder="João Silva"
+              startIcon={<User className="h-4 w-4" />}
+              {...register("nome")}
+            />
+            {errors.nome && (
+              <p className="text-xs text-destructive">{errors.nome.message}</p>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="seu@email.com"
+              startIcon={<Mail className="h-4 w-4" />}
+              {...register("email")}
+            />
+            {errors.email && (
+              <p className="text-xs text-destructive">{errors.email.message}</p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="empresa_nome">Nome da empresa</Label>
+              <Label htmlFor="senha">Senha</Label>
               <Input
-                id="empresa_nome"
-                placeholder="Minha Empresa Ltda"
-                startIcon={<Building2 className="h-4 w-4" />}
-                {...register("empresa_nome")}
+                id="senha"
+                type="password"
+                placeholder="••••••••"
+                startIcon={<Lock className="h-4 w-4" />}
+                {...register("senha")}
               />
-              {errors.empresa_nome && (
-                <p className="text-xs text-destructive">{errors.empresa_nome.message}</p>
+              {errors.senha && (
+                <p className="text-xs text-destructive">{errors.senha.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="empresa_documento">CNPJ</Label>
+              <Label htmlFor="confirmar_senha">Confirmar senha</Label>
               <Input
-                id="empresa_documento"
-                placeholder="00.000.000/0001-00"
-                startIcon={<FileText className="h-4 w-4" />}
-                {...register("empresa_documento")}
+                id="confirmar_senha"
+                type="password"
+                placeholder="••••••••"
+                startIcon={<Lock className="h-4 w-4" />}
+                {...register("confirmar_senha")}
               />
-              {errors.empresa_documento && (
-                <p className="text-xs text-destructive">{errors.empresa_documento.message}</p>
+              {errors.confirmar_senha && (
+                <p className="text-xs text-destructive">{errors.confirmar_senha.message}</p>
               )}
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="empresa_email">Email comercial</Label>
-                <Input
-                  id="empresa_email"
-                  type="email"
-                  placeholder="contato@empresa.com"
-                  startIcon={<Mail className="h-4 w-4" />}
-                  {...register("empresa_email")}
-                />
-                {errors.empresa_email && (
-                  <p className="text-xs text-destructive">{errors.empresa_email.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="empresa_telefone">Telefone</Label>
-                <Input
-                  id="empresa_telefone"
-                  placeholder="(11) 99999-9999"
-                  startIcon={<Phone className="h-4 w-4" />}
-                  {...register("empresa_telefone")}
-                />
-                {errors.empresa_telefone && (
-                  <p className="text-xs text-destructive">{errors.empresa_telefone.message}</p>
-                )}
-              </div>
-            </div>
           </div>
-
-          <Separator />
 
           <div className="space-y-1">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Dados do Administrador
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="nome">Seu nome completo</Label>
-              <Input
-                id="nome"
-                placeholder="João Silva"
-                startIcon={<User className="h-4 w-4" />}
-                {...register("nome")}
+            <label className="flex items-start gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-4 w-4 rounded border border-input accent-primary cursor-pointer"
+                {...register("aceitar_termos")}
               />
-              {errors.nome && (
-                <p className="text-xs text-destructive">{errors.nome.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Seu email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="admin@empresa.com"
-                startIcon={<Mail className="h-4 w-4" />}
-                {...register("email")}
-              />
-              {errors.email && (
-                <p className="text-xs text-destructive">{errors.email.message}</p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="senha">Senha</Label>
-                <Input
-                  id="senha"
-                  type="password"
-                  placeholder="••••••••"
-                  startIcon={<Lock className="h-4 w-4" />}
-                  {...register("senha")}
-                />
-                {errors.senha && (
-                  <p className="text-xs text-destructive">{errors.senha.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirmar_senha">Confirmar senha</Label>
-                <Input
-                  id="confirmar_senha"
-                  type="password"
-                  placeholder="••••••••"
-                  startIcon={<Lock className="h-4 w-4" />}
-                  {...register("confirmar_senha")}
-                />
-                {errors.confirmar_senha && (
-                  <p className="text-xs text-destructive">{errors.confirmar_senha.message}</p>
-                )}
-              </div>
-            </div>
+              <span className="text-xs text-muted-foreground leading-relaxed">
+                Li e aceito os{" "}
+                <Link href="/termos" target="_blank" className="text-primary hover:underline">
+                  Termos de Uso
+                </Link>
+                {" "}e a{" "}
+                <Link href="/privacidade" target="_blank" className="text-primary hover:underline">
+                  Política de Privacidade
+                </Link>
+              </span>
+            </label>
+            {errors.aceitar_termos && (
+              <p className="text-xs text-destructive pl-6">{errors.aceitar_termos.message}</p>
+            )}
           </div>
 
           <Button type="submit" className="w-full" variant="gradient" loading={isSubmitting}>

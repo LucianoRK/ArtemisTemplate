@@ -19,7 +19,11 @@ async function handler(
     "Content-Type": "application/json",
   };
 
-  const authHeader = request.headers.get("Authorization");
+  const authHeader =
+    request.headers.get("Authorization") ??
+    (request.cookies.get("auth_token")?.value
+      ? `Bearer ${request.cookies.get("auth_token")!.value}`
+      : null);
   if (authHeader) headers["Authorization"] = authHeader;
 
   const init: RequestInit = { method: request.method, headers };

@@ -10,10 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle2, Zap, Crown, Building } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { toast } from "sonner";
-import { loadStripe } from "@stripe/stripe-js";
 import type { Plano } from "@/types";
-
-const getStripe = () => loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 const planIcons: Record<string, React.ElementType> = {
   Starter: Zap,
@@ -34,26 +31,10 @@ export default function AssinaturaPage() {
 
   const assinar = useMutation({
     mutationFn: async (plano: Plano) => {
-      // If Stripe price ID, redirect to Stripe checkout
-      if (plano.stripe_price_id) {
-        const stripe = await getStripe();
-        if (!stripe) throw new Error("Stripe not loaded");
-        // In a real app, create a Stripe Checkout Session via API
-        toast.info("Redirecionando para o checkout do Stripe...");
-        return;
-      }
-      // Otherwise, create subscription directly
-      const hoje = new Date();
-      const fim = new Date();
-      fim.setFullYear(fim.getFullYear() + 1);
-      return assinaturaService.criar({
-        planoId: plano.id,
-        data_inicio: hoje.toISOString().split("T")[0],
-        data_fim: fim.toISOString().split("T")[0],
-      });
+      const { init_point } = await assinaturaService.checkout(plano.id);
+      window.location.href = init_point;
     },
-    onSuccess: () => toast.success("Assinatura criada com sucesso!"),
-    onError: () => toast.error("Erro ao criar assinatura"),
+    onError: () => toast.error("Erro ao iniciar pagamento"),
   });
 
   return (

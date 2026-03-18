@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "sonner";
 import { useState, useEffect } from "react";
 import { useAuthStore } from "@/store/auth.store";
+import { CookieBanner } from "@/components/shared/cookie-banner";
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -64,6 +65,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             }}
           />
           <ReactQueryDevtools initialIsOpen={false} />
+          <CookieBanner />
         </ThemeProvider>
       </QueryClientProvider>
     </AuthProvider>

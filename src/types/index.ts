@@ -6,10 +6,6 @@ export interface LoginRequest {
 }
 
 export interface RegistroRequest {
-  empresa_nome: string;
-  empresa_documento: string;
-  empresa_email: string;
-  empresa_telefone: string;
   nome: string;
   email: string;
   senha: string;
@@ -89,7 +85,7 @@ export interface Plano {
   preco: number;
   valor?: string;
   intervalo: PlanoIntervalo;
-  stripe_price_id?: string;
+  mp_preference_id?: string;
   recursos: string[];
   ativo?: boolean;
   criado_em?: string;
@@ -107,7 +103,7 @@ export interface Assinatura {
   status: AssinaturaStatus;
   data_inicio: string;
   data_fim: string;
-  stripe_subscription_id?: string;
+  mp_payment_id?: string;
   criado_em: string;
   atualizado_em: string;
 }
