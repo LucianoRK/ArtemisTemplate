@@ -32,7 +32,7 @@ export default function AssinaturaPage() {
   const assinar = useMutation({
     mutationFn: async (plano: Plano) => {
       const { init_point } = await assinaturaService.checkout(plano.id);
-      window.location.href = init_point;
+      window.open(init_point, "_blank");
     },
     onError: () => toast.error("Erro ao iniciar pagamento"),
   });
