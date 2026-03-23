@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus, Pencil, Trash2, Building2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Building2, Search } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -32,11 +32,21 @@ type FormData = z.infer<typeof schema>;
 
 export default function EmpresasPage() {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [editingEmpresa, setEditingEmpresa] = useState<Empresa | null>(null);
 
   const { data, isLoading } = useEmpresas({ page, limit: 10 });
+
+  const filteredData = !search.trim()
+    ? (data?.data ?? [])
+    : (data?.data ?? []).filter(
+        (e) =>
+          e.nome.toLowerCase().includes(search.toLowerCase()) ||
+          e.email.toLowerCase().includes(search.toLowerCase()) ||
+          e.documento.includes(search)
+      );
   const criarEmpresa = useCriarEmpresa();
   const atualizarEmpresa = useAtualizarEmpresa();
   const removerEmpresa = useRemoverEmpresa();
@@ -153,11 +163,21 @@ export default function EmpresasPage() {
         </Button>
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Buscar por nome, email ou CNPJ..."
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          className="pl-9 max-w-sm"
+        />
+      </div>
+
       <DataTable
         columns={columns}
-        data={data?.data ?? []}
+        data={filteredData}
         isLoading={isLoading}
-        total={data?.total}
+        total={search ? filteredData.length : data?.total}
         page={page}
         limit={10}
         onPageChange={setPage}

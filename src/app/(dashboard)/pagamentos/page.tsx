@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { pagamentoService } from "@/services/pagamento.service";
+import { usePagamentos } from "@/hooks/use-pagamentos";
 import { DataTable } from "@/components/shared/data-table";
 import { Badge } from "@/components/ui/badge";
-import { CreditCard } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { CreditCard, Search } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import type { Pagamento, PagamentoStatus } from "@/types";
 
@@ -25,11 +25,21 @@ const statusLabel: Record<PagamentoStatus, string> = {
 
 export default function PagamentosPage() {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["pagamentos", page],
-    queryFn: () => pagamentoService.listar({ page, limit: 10 }),
-  });
+  const { data, isLoading } = usePagamentos({ page, limit: 10 });
+
+  const filteredData = !search.trim()
+    ? (data?.data ?? [])
+    : (data?.data ?? []).filter(
+        (p) =>
+          p.transaction_id?.toLowerCase().includes(search.toLowerCase()) ||
+          statusLabel[p.status].toLowerCase().includes(search.toLowerCase())
+      );
+
+  const totalPago = (data?.data ?? [])
+    .filter((p) => p.status === "pago")
+    .reduce((acc, p) => acc + p.valor, 0);
 
   const columns = [
     {
@@ -73,10 +83,6 @@ export default function PagamentosPage() {
     },
   ];
 
-  const totalPago = data?.data
-    .filter((p) => p.status === "pago")
-    .reduce((acc, p) => acc + p.valor, 0) ?? 0;
-
   return (
     <div className="space-y-6">
       <div>
@@ -102,16 +108,26 @@ export default function PagamentosPage() {
         <div className="rounded-xl border bg-card p-4">
           <p className="text-sm text-muted-foreground">Pendentes</p>
           <p className="text-2xl font-bold mt-1">
-            {data?.data.filter((p) => p.status === "pendente").length ?? 0}
+            {(data?.data ?? []).filter((p) => p.status === "pendente").length}
           </p>
         </div>
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Buscar por transação ou status..."
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          className="pl-9 max-w-sm"
+        />
+      </div>
+
       <DataTable
         columns={columns}
-        data={data?.data ?? []}
+        data={filteredData}
         isLoading={isLoading}
-        total={data?.total}
+        total={search ? filteredData.length : data?.total}
         page={page}
         limit={10}
         onPageChange={setPage}

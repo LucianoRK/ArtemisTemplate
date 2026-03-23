@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Headphones, Eye } from "lucide-react";
+import { Plus, Headphones, Eye, Search } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -49,9 +49,16 @@ type FormData = z.infer<typeof schema>;
 
 export default function ChamadosPage() {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
 
   const { data, isLoading } = useChamados({ page, limit: 10 });
+
+  const filteredData = !search.trim()
+    ? (data?.data ?? [])
+    : (data?.data ?? []).filter((c) =>
+        c.assunto.toLowerCase().includes(search.toLowerCase())
+      );
   const criarChamado = useCriarChamado();
 
   const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } = useForm<FormData>({
@@ -138,11 +145,21 @@ export default function ChamadosPage() {
         </Button>
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Buscar por assunto..."
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          className="pl-9 max-w-sm"
+        />
+      </div>
+
       <DataTable
         columns={columns}
-        data={data?.data ?? []}
+        data={filteredData}
         isLoading={isLoading}
-        total={data?.total}
+        total={search ? filteredData.length : data?.total}
         page={page}
         limit={10}
         onPageChange={setPage}

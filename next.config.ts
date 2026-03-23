@@ -16,8 +16,8 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      // Next.js RSC hydration requires unsafe-inline; remove when nonce-based CSP is implemented
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      // Next.js RSC hydration requires unsafe-inline; nonce-based CSP is the long-term fix
+      "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https:",
       "font-src 'self'",

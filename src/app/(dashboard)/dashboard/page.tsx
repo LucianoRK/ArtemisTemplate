@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { StatsCard } from "@/components/shared/stats-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,18 +13,11 @@ import { formatCurrency, formatRelative } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { pagamentoService } from "@/services/pagamento.service";
 import { assinaturaService } from "@/services/assinatura.service";
+import { subMonths, format, differenceInCalendarMonths } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
-
-const chartData = [
-  { mes: "Out", receita: 8400 },
-  { mes: "Nov", receita: 12300 },
-  { mes: "Dez", receita: 10800 },
-  { mes: "Jan", receita: 15600 },
-  { mes: "Fev", receita: 18200 },
-  { mes: "Mar", receita: 21900 },
-];
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -38,6 +32,30 @@ export default function DashboardPage() {
     queryKey: ["assinatura", "ativa"],
     queryFn: () => assinaturaService.ativa(),
   });
+
+  const { data: pagamentosChart } = useQuery({
+    queryKey: ["pagamentos", "chart"],
+    queryFn: () => pagamentoService.listar({ page: 1, limit: 200 }),
+  });
+
+  const chartData = useMemo(() => {
+    const now = new Date();
+    const months = Array.from({ length: 6 }, (_, i) => {
+      const date = subMonths(now, 5 - i);
+      return { mes: format(date, "MMM", { locale: ptBR }), receita: 0 };
+    });
+
+    (pagamentosChart?.data ?? [])
+      .filter((p) => p.status === "pago" && p.data_pagamento)
+      .forEach((p) => {
+        const monthsAgo = differenceInCalendarMonths(now, new Date(p.data_pagamento));
+        if (monthsAgo >= 0 && monthsAgo < 6) {
+          months[5 - monthsAgo].receita += p.valor;
+        }
+      });
+
+    return months;
+  }, [pagamentosChart]);
 
   const isAdmin = user?.role === "admin";
 

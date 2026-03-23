@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useUsuarios, useCriarUsuario, useAtualizarUsuario, useRemoverUsuario } from "@/hooks/use-usuarios";
+
 import { DataTable } from "@/components/shared/data-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Users } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, Search } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -34,11 +35,20 @@ type FormData = z.infer<typeof schema>;
 
 export default function UsuariosPage() {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [editingUser, setEditingUser] = useState<Usuario | null>(null);
 
   const { data, isLoading } = useUsuarios({ page, limit: 10 });
+
+  const filteredData = !search.trim()
+    ? (data?.data ?? [])
+    : (data?.data ?? []).filter(
+        (u) =>
+          u.nome.toLowerCase().includes(search.toLowerCase()) ||
+          u.email.toLowerCase().includes(search.toLowerCase())
+      );
   const criarUsuario = useCriarUsuario();
   const atualizarUsuario = useAtualizarUsuario();
   const removerUsuario = useRemoverUsuario();
@@ -167,11 +177,21 @@ export default function UsuariosPage() {
         </Button>
       </div>
 
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Buscar por nome ou email..."
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          className="pl-9 max-w-sm"
+        />
+      </div>
+
       <DataTable
         columns={columns}
-        data={data?.data ?? []}
+        data={filteredData}
         isLoading={isLoading}
-        total={data?.total}
+        total={search ? filteredData.length : data?.total}
         page={page}
         limit={10}
         onPageChange={setPage}
