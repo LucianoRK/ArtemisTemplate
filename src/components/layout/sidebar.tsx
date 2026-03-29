@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/store/auth.store";
 
 const navItems = [
   {
@@ -22,6 +23,7 @@ const navItems = [
     title: "Usuários",
     href: "/usuarios",
     icon: Users,
+    adminOnly: true,
   },
   {
     title: "Assinatura",
@@ -32,6 +34,7 @@ const navItems = [
     title: "Pagamentos",
     href: "/pagamentos",
     icon: CreditCard,
+    adminOnly: true,
   },
   {
     title: "Chamados",
@@ -42,6 +45,7 @@ const navItems = [
     title: "Logs",
     href: "/logs",
     icon: FileText,
+    adminOnly: true,
   },
   {
     title: "Pagamento Registrar",
@@ -58,8 +62,12 @@ interface SidebarProps {
 export function Sidebar({ className }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const user = useAuthStore((s) => s.user);
+  const isAdmin = user?.role === "admin";
 
-  const visibleItems = navItems.filter((item) => !item.hidden);
+  const visibleItems = navItems.filter(
+    (item) => !item.hidden && (!item.adminOnly || isAdmin)
+  );
 
   return (
     <TooltipProvider delayDuration={0}>

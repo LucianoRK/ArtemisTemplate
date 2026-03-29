@@ -13,13 +13,16 @@ import { Mail, Lock, User } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { authService } from "@/services/auth.service";
+import { getApiErrorMessage } from "@/lib/utils";
 
 const schema = z.object({
   nome: z.string().min(2, "Nome obrigatório"),
   email: z.string().email("Email inválido"),
   senha: z.string().min(6, "Mínimo 6 caracteres"),
   confirmar_senha: z.string(),
-  aceitar_termos: z.literal(true, { errorMap: () => ({ message: "Você deve aceitar os termos para continuar" }) }),
+  aceitar_termos: z.literal(true, {
+    errorMap: () => ({ message: "Você deve aceitar os termos para continuar" }),
+  }),
 }).refine((data) => data.senha === data.confirmar_senha, {
   message: "Senhas não conferem",
   path: ["confirmar_senha"],
@@ -62,8 +65,8 @@ export default function RegistroPage() {
 
       toast.success("Conta criada com sucesso! Bem-vindo ao Artemis!");
       router.push("/dashboard");
-    } catch {
-      toast.error("Erro ao criar conta. Verifique os dados e tente novamente.");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Erro ao criar conta. Verifique os dados e tente novamente."));
     }
   };
 
@@ -72,7 +75,7 @@ export default function RegistroPage() {
       <CardHeader className="space-y-1 pb-6">
         <CardTitle className="text-2xl font-bold">Criar conta</CardTitle>
         <CardDescription>
-          Crie sua conta e comece a usar em menos de 5 minutos
+          Crie sua conta e comece a usar em menos de 2 minutos
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -95,7 +98,7 @@ export default function RegistroPage() {
             <Input
               id="email"
               type="email"
-              placeholder="seu@email.com"
+              placeholder="joao@empresa.com"
               startIcon={<Mail className="h-4 w-4" />}
               {...register("email")}
             />
@@ -118,7 +121,6 @@ export default function RegistroPage() {
                 <p className="text-xs text-destructive">{errors.senha.message}</p>
               )}
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="confirmar_senha">Confirmar senha</Label>
               <Input

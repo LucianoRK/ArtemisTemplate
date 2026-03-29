@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAdminGuard } from "@/hooks/use-admin-guard";
 import { configuracaoService } from "@/services/configuracao.service";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Configuracao } from "@/types";
 
@@ -30,8 +32,11 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function ConfiguracoesPage() {
+  const { isAdmin, initialized } = useAdminGuard();
   const queryClient = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
+
+  if (!initialized || !isAdmin) return null;
   const [deleteChave, setDeleteChave] = useState<string | null>(null);
   const [editingConfig, setEditingConfig] = useState<Configuracao | null>(null);
 
@@ -48,7 +53,7 @@ export default function ConfiguracoesPage() {
       setModalOpen(false);
       reset();
     },
-    onError: () => toast.error("Erro ao criar configuração"),
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao criar configuração")),
   });
 
   const atualizarConfig = useMutation({
@@ -60,7 +65,7 @@ export default function ConfiguracoesPage() {
       setModalOpen(false);
       reset();
     },
-    onError: () => toast.error("Erro ao atualizar configuração"),
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao atualizar configuração")),
   });
 
   const removerConfig = useMutation({
@@ -70,7 +75,7 @@ export default function ConfiguracoesPage() {
       toast.success("Configuração removida!");
       setDeleteChave(null);
     },
-    onError: () => toast.error("Erro ao remover configuração"),
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao remover configuração")),
   });
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormData>({

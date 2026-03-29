@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useEmpresas, useCriarEmpresa, useAtualizarEmpresa, useRemoverEmpresa } from "@/hooks/use-empresa";
+import { useAdminGuard } from "@/hooks/use-admin-guard";
 import { DataTable } from "@/components/shared/data-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,17 +23,20 @@ import { formatDate } from "@/lib/utils";
 import type { Empresa } from "@/types";
 
 const schema = z.object({
-  nome: z.string().min(2, "Nome obrigatório"),
-  documento: z.string().min(14, "CNPJ inválido"),
-  email: z.string().email("Email inválido"),
-  telefone: z.string().min(10, "Telefone inválido"),
+  nome: z.string().refine((v) => !v || v.length >= 2, "Mínimo 2 caracteres"),
+  documento: z.string(),
+  email: z.string().refine((v) => !v || z.string().email().safeParse(v).success, "Email inválido"),
+  telefone: z.string(),
 });
 
 type FormData = z.infer<typeof schema>;
 
 export default function EmpresasPage() {
+  const { isAdmin, initialized } = useAdminGuard();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+
+  if (!initialized || !isAdmin) return null;
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [editingEmpresa, setEditingEmpresa] = useState<Empresa | null>(null);
@@ -43,9 +47,9 @@ export default function EmpresasPage() {
     ? (data?.data ?? [])
     : (data?.data ?? []).filter(
         (e) =>
-          e.nome.toLowerCase().includes(search.toLowerCase()) ||
-          e.email.toLowerCase().includes(search.toLowerCase()) ||
-          e.documento.includes(search)
+          e.nome?.toLowerCase().includes(search.toLowerCase()) ||
+          e.email?.toLowerCase().includes(search.toLowerCase()) ||
+          e.documento?.includes(search)
       );
   const criarEmpresa = useCriarEmpresa();
   const atualizarEmpresa = useAtualizarEmpresa();
@@ -63,15 +67,23 @@ export default function EmpresasPage() {
 
   const openEdit = (empresa: Empresa) => {
     setEditingEmpresa(empresa);
-    reset({ nome: empresa.nome, documento: empresa.documento, email: empresa.email, telefone: empresa.telefone });
+    reset({
+      nome: empresa.nome ?? "",
+      documento: empresa.documento ?? "",
+      email: empresa.email ?? "",
+      telefone: empresa.telefone ?? "",
+    });
     setModalOpen(true);
   };
 
   const onSubmit = async (data: FormData) => {
+    const payload = Object.fromEntries(
+      Object.entries(data).filter(([, v]) => v !== "")
+    );
     if (editingEmpresa) {
-      await atualizarEmpresa.mutateAsync({ id: editingEmpresa.id, data });
+      await atualizarEmpresa.mutateAsync({ id: editingEmpresa.id, data: payload });
     } else {
-      await criarEmpresa.mutateAsync(data);
+      await criarEmpresa.mutateAsync(payload);
     }
     setModalOpen(false);
     reset();
@@ -94,8 +106,8 @@ export default function EmpresasPage() {
             <Building2 className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <p className="font-medium text-sm">{row.nome}</p>
-            <p className="text-xs text-muted-foreground">{row.documento}</p>
+            <p className="font-medium text-sm">{row.nome ?? "—"}</p>
+            <p className="text-xs text-muted-foreground">{row.documento ?? "—"}</p>
           </div>
         </div>
       ),
@@ -166,7 +178,7 @@ export default function EmpresasPage() {
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Buscar por nome, email ou CNPJ..."
+          placeholder="Buscar por nome, email ou documento..."
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           className="pl-9 max-w-sm"
@@ -195,8 +207,8 @@ export default function EmpresasPage() {
               {errors.nome && <p className="text-xs text-destructive">{errors.nome.message}</p>}
             </div>
             <div className="space-y-2">
-              <Label>CNPJ</Label>
-              <Input placeholder="00.000.000/0001-00" {...register("documento")} />
+              <Label>CPF / CNPJ</Label>
+              <Input placeholder="000.000.000-00 ou 00.000.000/0001-00" {...register("documento")} />
               {errors.documento && <p className="text-xs text-destructive">{errors.documento.message}</p>}
             </div>
             <div className="grid grid-cols-2 gap-4">

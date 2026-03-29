@@ -9,6 +9,7 @@ import type {
   PaginationParams,
 } from "@/types";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/utils";
 
 export const chamadoKeys = {
   all: ["chamados"] as const,
@@ -40,7 +41,7 @@ export function useCriarChamado() {
       queryClient.invalidateQueries({ queryKey: chamadoKeys.lists() });
       toast.success("Chamado criado com sucesso!");
     },
-    onError: () => toast.error("Erro ao criar chamado"),
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao criar chamado")),
   });
 }
 
@@ -53,7 +54,7 @@ export function useAdicionarMensagem(chamadoId: number) {
       queryClient.invalidateQueries({ queryKey: chamadoKeys.detail(chamadoId) });
       toast.success("Mensagem enviada!");
     },
-    onError: () => toast.error("Erro ao enviar mensagem"),
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao enviar mensagem")),
   });
 }
 
@@ -66,7 +67,7 @@ export function useFecharChamado() {
       queryClient.invalidateQueries({ queryKey: chamadoKeys.detail(id) });
       toast.success("Chamado fechado!");
     },
-    onError: () => toast.error("Erro ao fechar chamado"),
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao fechar chamado")),
   });
 }
 
@@ -80,6 +81,6 @@ export function useAtualizarChamado() {
       queryClient.invalidateQueries({ queryKey: chamadoKeys.detail(id) });
       toast.success("Chamado atualizado!");
     },
-    onError: () => toast.error("Erro ao atualizar chamado"),
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao atualizar chamado")),
   });
 }

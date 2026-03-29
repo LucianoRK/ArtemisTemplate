@@ -23,7 +23,7 @@ export function Header() {
   const { theme, setTheme } = useTheme();
   const { data: naoLidas } = useNotificacoesNaoLidas();
 
-  const count = naoLidas?.count ?? 0;
+  const count = naoLidas?.total ?? 0;
 
   return (
     <header className="flex items-center justify-between h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 sticky top-0 z-40">

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { empresaService } from "@/services/empresa.service";
 import type { CriarEmpresaRequest, AtualizarEmpresaRequest, PaginationParams } from "@/types";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/utils";
 
 export const empresaKeys = {
   all: ["empresas"] as const,
@@ -35,7 +36,7 @@ export function useCriarEmpresa() {
       queryClient.invalidateQueries({ queryKey: empresaKeys.lists() });
       toast.success("Empresa criada com sucesso!");
     },
-    onError: () => toast.error("Erro ao criar empresa"),
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao criar empresa")),
   });
 }
 
@@ -49,7 +50,7 @@ export function useAtualizarEmpresa() {
       queryClient.invalidateQueries({ queryKey: empresaKeys.detail(id) });
       toast.success("Empresa atualizada com sucesso!");
     },
-    onError: () => toast.error("Erro ao atualizar empresa"),
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao atualizar empresa")),
   });
 }
 
@@ -61,6 +62,6 @@ export function useRemoverEmpresa() {
       queryClient.invalidateQueries({ queryKey: empresaKeys.lists() });
       toast.success("Empresa removida com sucesso!");
     },
-    onError: () => toast.error("Erro ao remover empresa"),
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao remover empresa")),
   });
 }

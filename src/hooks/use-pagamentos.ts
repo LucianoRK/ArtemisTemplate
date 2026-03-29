@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { pagamentoService } from "@/services/pagamento.service";
 import type { PaginationParams, RegistrarPagamentoRequest } from "@/types";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/utils";
 
 export const pagamentoKeys = {
   all: ["pagamentos"] as const,
@@ -35,6 +36,6 @@ export function useRegistrarPagamento() {
       queryClient.invalidateQueries({ queryKey: pagamentoKeys.lists() });
       toast.success("Pagamento registrado com sucesso!");
     },
-    onError: () => toast.error("Erro ao registrar pagamento"),
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao registrar pagamento")),
   });
 }

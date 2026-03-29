@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     // Forward payment and subscription notifications to the backend
     if (payload.type === "payment" || payload.type === "subscription_preapproval") {
-      await fetch(`${API_URL}/pagamento/webhook`, {
+      await fetch(`${API_URL}/webhook/mercadopago`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useUsuarios, useCriarUsuario, useAtualizarUsuario, useRemoverUsuario } from "@/hooks/use-usuarios";
+import { useAdminGuard } from "@/hooks/use-admin-guard";
 
 import { DataTable } from "@/components/shared/data-table";
 import { Button } from "@/components/ui/button";
@@ -34,8 +35,11 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function UsuariosPage() {
+  const { isAdmin, initialized } = useAdminGuard();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+
+  if (!initialized || !isAdmin) return null;
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [editingUser, setEditingUser] = useState<Usuario | null>(null);

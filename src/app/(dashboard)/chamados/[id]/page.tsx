@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 import type { ChamadoStatus, ChamadoPrioridade } from "@/types";
 
 const statusLabel: Record<ChamadoStatus, string> = {
-  aberto: "Aberto", em_andamento: "Em andamento", respondido: "Respondido", fechado: "Fechado",
+  aberto: "Aberto", respondido: "Respondido", fechado: "Fechado",
 };
 
 export default function ChamadoDetailPage({ params }: { params: Promise<{ id: string }> }) {

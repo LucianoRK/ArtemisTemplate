@@ -15,14 +15,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { formatDocument, formatPhone } from "@/lib/utils";
+import { formatDocument, formatPhone, getApiErrorMessage } from "@/lib/utils";
 import { useEffect } from "react";
 
 const schema = z.object({
-  nome: z.string().min(2, "Nome obrigatório"),
-  documento: z.string().min(14, "CNPJ inválido"),
-  email: z.string().email("Email inválido"),
-  telefone: z.string().min(10, "Telefone inválido"),
+  nome: z.string().refine((v) => !v || v.length >= 2, "Mínimo 2 caracteres"),
+  documento: z.string(),
+  email: z.string().refine((v) => !v || z.string().email().safeParse(v).success, "Email inválido"),
+  telefone: z.string(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -39,12 +39,12 @@ export default function EmpresaPage() {
   });
 
   const atualizar = useMutation({
-    mutationFn: (data: FormData) => empresaService.atualizar(user!.empresa_id, data),
+    mutationFn: (data: Partial<FormData>) => empresaService.atualizar(user!.empresa_id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["empresa", user?.empresa_id] });
       toast.success("Empresa atualizada com sucesso!");
     },
-    onError: () => toast.error("Erro ao atualizar empresa"),
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao atualizar empresa")),
   });
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
@@ -54,10 +54,10 @@ export default function EmpresaPage() {
   useEffect(() => {
     if (empresa) {
       reset({
-        nome: empresa.nome,
-        documento: empresa.documento,
-        email: empresa.email,
-        telefone: empresa.telefone,
+        nome: empresa.nome ?? "",
+        documento: empresa.documento ?? "",
+        email: empresa.email ?? "",
+        telefone: empresa.telefone ?? "",
       });
     }
   }, [empresa, reset]);
@@ -120,15 +120,15 @@ export default function EmpresaPage() {
               ))}
             </div>
           ) : isAdmin ? (
-            <form onSubmit={handleSubmit((data) => atualizar.mutateAsync(data))} className="space-y-4">
+            <form onSubmit={handleSubmit((data) => atualizar.mutateAsync(Object.fromEntries(Object.entries(data).filter(([, v]) => v !== ""))))} className="space-y-4">
               <div className="space-y-2">
                 <Label>Nome da empresa</Label>
                 <Input placeholder="Nome da empresa" {...register("nome")} />
                 {errors.nome && <p className="text-xs text-destructive">{errors.nome.message}</p>}
               </div>
               <div className="space-y-2">
-                <Label>CNPJ</Label>
-                <Input placeholder="00.000.000/0001-00" {...register("documento")} />
+                <Label>CPF / CNPJ</Label>
+                <Input placeholder="000.000.000-00 ou 00.000.000/0001-00" {...register("documento")} />
                 {errors.documento && <p className="text-xs text-destructive">{errors.documento.message}</p>}
               </div>
               <Separator />
@@ -156,7 +156,7 @@ export default function EmpresaPage() {
               </div>
               <Separator />
               <div className="grid grid-cols-3 gap-2">
-                <dt className="text-sm text-muted-foreground">CNPJ</dt>
+                <dt className="text-sm text-muted-foreground">CPF / CNPJ</dt>
                 <dd className="col-span-2 text-sm font-medium">
                   {empresa?.documento ? formatDocument(empresa.documento) : "—"}
                 </dd>

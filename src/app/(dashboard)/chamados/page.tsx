@@ -21,20 +21,17 @@ import Link from "next/link";
 
 const statusVariant: Record<ChamadoStatus, "success" | "warning" | "destructive" | "outline" | "info"> = {
   aberto: "destructive",
-  em_andamento: "warning",
   respondido: "info",
   fechado: "outline",
 };
 
 const statusLabel: Record<ChamadoStatus, string> = {
   aberto: "Aberto",
-  em_andamento: "Em andamento",
   respondido: "Respondido",
   fechado: "Fechado",
 };
 
 const prioridadeVariant: Record<ChamadoPrioridade, "destructive" | "warning" | "secondary" | "outline"> = {
-  urgente: "destructive",
   alta: "warning",
   media: "secondary",
   baixa: "outline",
@@ -42,7 +39,7 @@ const prioridadeVariant: Record<ChamadoPrioridade, "destructive" | "warning" | "
 
 const schema = z.object({
   assunto: z.string().min(5, "Assunto deve ter ao menos 5 caracteres"),
-  prioridade: z.enum(["baixa", "media", "alta", "urgente"]),
+  prioridade: z.enum(["baixa", "media", "alta"]),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -191,7 +188,6 @@ export default function ChamadosPage() {
                       <SelectItem value="baixa">Baixa</SelectItem>
                       <SelectItem value="media">Média</SelectItem>
                       <SelectItem value="alta">Alta</SelectItem>
-                      <SelectItem value="urgente">Urgente</SelectItem>
                     </SelectContent>
                   </Select>
                 )}

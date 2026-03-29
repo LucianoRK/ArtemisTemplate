@@ -3,12 +3,13 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { assinaturaService } from "@/services/assinatura.service";
 import { planoService } from "@/services/plano.service";
+import { useAuthStore } from "@/store/auth.store";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle2, Zap, Crown, Building } from "lucide-react";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, getApiErrorMessage } from "@/lib/utils";
 import { toast } from "sonner";
 import type { Plano } from "@/types";
 
@@ -19,6 +20,9 @@ const planIcons: Record<string, React.ElementType> = {
 };
 
 export default function AssinaturaPage() {
+  const user = useAuthStore((s) => s.user);
+  const isAdmin = user?.role === "admin";
+
   const { data: assinatura, isLoading: loadingAssinatura } = useQuery({
     queryKey: ["assinatura", "ativa"],
     queryFn: () => assinaturaService.ativa(),
@@ -34,7 +38,7 @@ export default function AssinaturaPage() {
       const { init_point } = await assinaturaService.checkout(plano.id);
       window.open(init_point, "_blank");
     },
-    onError: () => toast.error("Erro ao iniciar pagamento"),
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao iniciar pagamento")),
   });
 
   return (
@@ -72,7 +76,7 @@ export default function AssinaturaPage() {
                     <Badge variant="success">Ativo</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Válido até {formatDate(assinatura.data_fim)}
+                    Válido até {assinatura.data_fim ? formatDate(assinatura.data_fim) : "—"}
                   </p>
                 </div>
               </div>
@@ -148,10 +152,11 @@ export default function AssinaturaPage() {
                     </ul>
                     <Button
                       variant={isCurrentPlan ? "outline" : "gradient"}
-                      disabled={isCurrentPlan}
+                      disabled={isCurrentPlan || !isAdmin}
                       loading={assinar.isPending}
                       onClick={() => assinar.mutate(plano)}
                       className="w-full"
+                      title={!isAdmin ? "Apenas administradores podem assinar planos" : undefined}
                     >
                       {isCurrentPlan ? "Plano atual" : "Assinar"}
                     </Button>

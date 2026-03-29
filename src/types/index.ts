@@ -50,10 +50,10 @@ export interface AtualizarUsuarioRequest {
 
 export interface Empresa {
   id: number;
-  nome: string;
-  documento: string;
-  email: string;
-  telefone: string;
+  nome: string | null;
+  documento: string | null;
+  email: string | null;
+  telefone: string | null;
   ativo: boolean;
   deleted_at?: string | null;
   criado_em: string;
@@ -61,10 +61,10 @@ export interface Empresa {
 }
 
 export interface CriarEmpresaRequest {
-  nome: string;
-  documento: string;
-  email: string;
-  telefone: string;
+  nome?: string;
+  documento?: string;
+  email?: string;
+  telefone?: string;
 }
 
 export interface AtualizarEmpresaRequest {
@@ -93,17 +93,13 @@ export interface Plano {
 
 // ─── Assinatura ───────────────────────────────────────────────────────────────
 
-export type AssinaturaStatus = "ativa" | "cancelada" | "expirada" | "pendente";
-
 export interface Assinatura {
   id: number;
   empresa_id: number;
   plano_id: number;
   plano?: Plano;
-  status: AssinaturaStatus;
   data_inicio: string;
-  data_fim: string;
-  mp_payment_id?: string;
+  data_fim: string | null;
   criado_em: string;
   atualizado_em: string;
 }
@@ -158,14 +154,11 @@ export interface AtualizarConfiguracaoRequest {
 
 // ─── Log ──────────────────────────────────────────────────────────────────────
 
-export type LogNivel = "info" | "warn" | "error" | "debug";
-
 export interface Log {
   id: number;
-  nivel: LogNivel;
-  mensagem: string;
-  contexto?: Record<string, unknown>;
-  usuario_id?: number;
+  entidade: string;
+  entidade_id: number | null;
+  acao: string;
   usuario?: Pick<Usuario, "id" | "nome" | "email">;
   criado_em: string;
 }
@@ -185,17 +178,13 @@ export interface Notificacao {
 }
 
 export interface NotificacoesNaoLidasResponse {
-  count: number;
+  total: number;
 }
 
 // ─── Chamado ──────────────────────────────────────────────────────────────────
 
-export type ChamadoStatus =
-  | "aberto"
-  | "em_andamento"
-  | "respondido"
-  | "fechado";
-export type ChamadoPrioridade = "baixa" | "media" | "alta" | "urgente";
+export type ChamadoStatus = "aberto" | "respondido" | "fechado";
+export type ChamadoPrioridade = "baixa" | "media" | "alta";
 
 export interface ChamadoMensagem {
   id: number;

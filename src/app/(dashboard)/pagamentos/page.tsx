@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usePagamentos } from "@/hooks/use-pagamentos";
+import { useAdminGuard } from "@/hooks/use-admin-guard";
 import { DataTable } from "@/components/shared/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -24,8 +25,11 @@ const statusLabel: Record<PagamentoStatus, string> = {
 };
 
 export default function PagamentosPage() {
+  const { isAdmin, initialized } = useAdminGuard();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+
+  if (!initialized || !isAdmin) return null;
 
   const { data, isLoading } = usePagamentos({ page, limit: 10 });
 

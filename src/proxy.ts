@@ -27,7 +27,8 @@ export function proxy(request: NextRequest) {
 
   const isPublicRoute =
     publicRoutes.some((route) => pathname === route) ||
-    publicApiRoutes.some((route) => pathname === route);
+    publicApiRoutes.some((route) => pathname === route) ||
+    pathname.startsWith("/api/proxy/auth/");
 
   const isAuthRoute = authRoutes.some((route) => pathname === route);
 

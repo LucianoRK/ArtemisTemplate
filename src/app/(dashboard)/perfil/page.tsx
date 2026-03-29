@@ -1,6 +1,6 @@
 "use client";
 
-import { useUsuarioPerfil, useAtualizarUsuario } from "@/hooks/use-usuarios";
+import { useUsuarioPerfil, useAtualizarPerfil } from "@/hooks/use-usuarios";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function PerfilPage() {
   const { data: perfil, isLoading } = useUsuarioPerfil();
-  const atualizarUsuario = useAtualizarUsuario();
+  const atualizarPerfil = useAtualizarPerfil();
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -39,13 +39,10 @@ export default function PerfilPage() {
 
   const onSubmit = async (data: FormData) => {
     if (!perfil) return;
-    await atualizarUsuario.mutateAsync({
-      id: perfil.id,
-      data: {
-        nome: data.nome,
-        email: data.email,
-        ...(data.senha ? { senha: data.senha } : {}),
-      },
+    await atualizarPerfil.mutateAsync({
+      nome: data.nome,
+      email: data.email,
+      ...(data.senha ? { senha: data.senha } : {}),
     });
   };
 
@@ -112,7 +109,7 @@ export default function PerfilPage() {
               {errors.senha && <p className="text-xs text-destructive">{errors.senha.message}</p>}
             </div>
 
-            <Button type="submit" variant="gradient" loading={isSubmitting}>
+            <Button type="submit" variant="gradient" loading={isSubmitting || atualizarPerfil.isPending}>
               Salvar alterações
             </Button>
           </form>

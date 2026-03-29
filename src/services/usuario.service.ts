@@ -30,6 +30,11 @@ export const usuarioService = {
     return res.data;
   },
 
+  async atualizarPerfil(data: AtualizarUsuarioRequest): Promise<Usuario> {
+    const res = await api.put<Usuario>("/usuario/perfil", data);
+    return res.data;
+  },
+
   async atualizar(id: number, data: AtualizarUsuarioRequest): Promise<Usuario> {
     const res = await api.put<Usuario>(`/usuario/${id}`, data);
     return res.data;

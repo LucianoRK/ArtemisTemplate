@@ -75,3 +75,19 @@ export function getInitials(name: string): string {
 export function truncate(str: string, length: number): string {
   return str.length > length ? `${str.slice(0, length)}...` : str;
 }
+
+export function getApiErrorMessage(error: unknown, fallback = "Erro inesperado"): string {
+  if (error && typeof error === "object") {
+    const err = error as { response?: { data?: unknown }; message?: string };
+    if (err.response?.data) {
+      const data = err.response.data as Record<string, unknown>;
+      if (typeof data === "string") return data;
+      if (typeof data.message === "string") return data.message;
+      if (typeof data.error === "string") return data.error;
+    }
+    if (typeof err.message === "string" && err.message !== "Network Error") {
+      return err.message;
+    }
+  }
+  return fallback;
+}

@@ -122,7 +122,7 @@ export default function DashboardPage() {
                   Plano {assinatura.plano?.nome ?? "Ativo"}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Ativo até {new Date(assinatura.data_fim).toLocaleDateString("pt-BR")}
+                  Ativo até {assinatura.data_fim ? new Date(assinatura.data_fim).toLocaleDateString("pt-BR") : "—"}
                 </p>
               </div>
             </div>

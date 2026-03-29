@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { usuarioService } from "@/services/usuario.service";
 import type { CriarUsuarioRequest, AtualizarUsuarioRequest, PaginationParams } from "@/types";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/utils";
 
 export const usuarioKeys = {
   all: ["usuarios"] as const,
@@ -43,7 +44,19 @@ export function useCriarUsuario() {
       queryClient.invalidateQueries({ queryKey: usuarioKeys.lists() });
       toast.success("Usuário criado com sucesso!");
     },
-    onError: () => toast.error("Erro ao criar usuário"),
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao criar usuário")),
+  });
+}
+
+export function useAtualizarPerfil() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: AtualizarUsuarioRequest) => usuarioService.atualizarPerfil(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: usuarioKeys.perfil() });
+      toast.success("Perfil atualizado com sucesso!");
+    },
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao atualizar perfil")),
   });
 }
 
@@ -57,7 +70,7 @@ export function useAtualizarUsuario() {
       queryClient.invalidateQueries({ queryKey: usuarioKeys.detail(id) });
       toast.success("Usuário atualizado com sucesso!");
     },
-    onError: () => toast.error("Erro ao atualizar usuário"),
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao atualizar usuário")),
   });
 }
 
@@ -69,6 +82,6 @@ export function useRemoverUsuario() {
       queryClient.invalidateQueries({ queryKey: usuarioKeys.lists() });
       toast.success("Usuário removido com sucesso!");
     },
-    onError: () => toast.error("Erro ao remover usuário"),
+    onError: (error) => toast.error(getApiErrorMessage(error, "Erro ao remover usuário")),
   });
 }
