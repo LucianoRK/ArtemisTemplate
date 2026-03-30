@@ -48,7 +48,7 @@ export default function DashboardPage() {
     (pagamentosChart?.data ?? [])
       .filter((p) => p.status === "pago" && p.data_pagamento)
       .forEach((p) => {
-        const monthsAgo = differenceInCalendarMonths(now, new Date(p.data_pagamento));
+        const monthsAgo = differenceInCalendarMonths(now, new Date(p.data_pagamento!));
         if (monthsAgo >= 0 && monthsAgo < 6) {
           months[5 - monthsAgo].receita += p.valor;
         }

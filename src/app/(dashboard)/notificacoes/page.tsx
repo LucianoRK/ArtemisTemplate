@@ -17,7 +17,7 @@ const tipoConfig: Record<NotificacaoTipo, {
 }> = {
   info: { icon: Info, variant: "info", label: "Informação" },
   sucesso: { icon: CheckCircle2, variant: "success", label: "Sucesso" },
-  aviso: { icon: AlertTriangle, variant: "warning", label: "Aviso" },
+  alerta: { icon: AlertTriangle, variant: "warning", label: "Alerta" },
   erro: { icon: XCircle, variant: "destructive", label: "Erro" },
 };
 

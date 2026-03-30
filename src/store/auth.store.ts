@@ -5,7 +5,7 @@ export interface AuthUser {
   name: string;
   email: string;
   role: string;
-  empresa_id: number;
+  empresa_id: number | null;
 }
 
 interface AuthState {

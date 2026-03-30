@@ -11,6 +11,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const jwtPayload = JSON.parse(
+      Buffer.from(token.split(".")[1], "base64").toString()
+    );
+
     const res = await serverApi(token).get<Usuario>("/usuario/perfil");
     const perfil = res.data;
 
@@ -19,7 +23,7 @@ export async function GET(request: NextRequest) {
       name: perfil.nome,
       email: perfil.email,
       role: perfil.role,
-      empresa_id: perfil.empresa_id,
+      empresa_id: jwtPayload.empresa_id as number,
     };
 
     return NextResponse.json({ user, token });

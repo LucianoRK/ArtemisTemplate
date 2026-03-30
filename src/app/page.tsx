@@ -80,8 +80,6 @@ export default async function LandingPage() {
       .map((p: Plano & { valor?: string }) => ({
         ...p,
         preco: Number(p.preco ?? p.valor ?? 0),
-        intervalo: p.intervalo ?? "mensal",
-        recursos: p.recursos ?? [],
       }))
       .filter((p: Plano) => p.ativo !== false);
   } catch {
@@ -199,19 +197,16 @@ export default async function LandingPage() {
                     <div className="flex items-baseline gap-1 mt-2">
                       <span className="text-3xl font-bold">{formatCurrency(plan.preco)}</span>
                       <span className="text-muted-foreground text-sm">
-                        /{plan.intervalo === "mensal" ? "mês" : "ano"}
+                        /{plan.periodo_dias >= 365 ? "ano" : "mês"}
                       </span>
                     </div>
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col gap-4">
-                    <ul className="space-y-2.5 flex-1">
-                      {plan.recursos.map((recurso) => (
-                        <li key={recurso} className="flex items-center gap-2 text-sm">
-                          <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                          {recurso}
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="flex-1">
+                      {plan.descricao && (
+                        <p className="text-sm text-muted-foreground">{plan.descricao}</p>
+                      )}
+                    </div>
                     <Button variant="outline" className="w-full mt-4" asChild>
                       <Link href="/registro">Assinar</Link>
                     </Button>

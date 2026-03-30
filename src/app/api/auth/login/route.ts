@@ -28,6 +28,11 @@ export async function POST(request: NextRequest) {
     // 1. Login — API retorna apenas access_token
     const { access_token } = await authService.login({ email, senha });
 
+    // Decode JWT payload to get empresa_id (no verification needed — already validated by backend)
+    const jwtPayload = JSON.parse(
+      Buffer.from(access_token.split(".")[1], "base64").toString()
+    );
+
     // 2. Busca perfil do usuário com o token
     const perfilRes = await serverApi(access_token).get<Usuario>("/usuario/perfil");
     const perfil = perfilRes.data;
@@ -37,7 +42,7 @@ export async function POST(request: NextRequest) {
       name: perfil.nome,
       email: perfil.email,
       role: perfil.role,
-      empresa_id: perfil.empresa_id,
+      empresa_id: jwtPayload.empresa_id as number,
     };
 
     // Return token in response body — client stores in memory (Zustand), never in localStorage
@@ -64,10 +69,19 @@ export async function POST(request: NextRequest) {
     );
 
     return response;
-  } catch {
+  } catch (err: unknown) {
+    const axiosErr = err as { response?: { data?: { message?: string }; status?: number } };
+    const msg = axiosErr?.response?.data?.message;
+    const status = axiosErr?.response?.status;
+    if (status === 401 || status === 403) {
+      return NextResponse.json(
+        { error: Array.isArray(msg) ? msg[0] : (msg ?? "Email ou senha inválidos") },
+        { status: 401 }
+      );
+    }
     return NextResponse.json(
-      { error: "Email ou senha inválidos" },
-      { status: 401 }
+      { error: "Erro ao autenticar. Tente novamente." },
+      { status: 500 }
     );
   }
 }

@@ -14,14 +14,14 @@ const statusVariant: Record<PagamentoStatus, "success" | "warning" | "destructiv
   pago: "success",
   pendente: "warning",
   falhou: "destructive",
-  reembolsado: "outline",
+  estornado: "outline",
 };
 
 const statusLabel: Record<PagamentoStatus, string> = {
   pago: "Pago",
   pendente: "Pendente",
   falhou: "Falhou",
-  reembolsado: "Reembolsado",
+  estornado: "Estornado",
 };
 
 export default function PagamentosPage() {
@@ -81,7 +81,7 @@ export default function PagamentosPage() {
       header: "Data",
       cell: (row: Pagamento) => (
         <span className="text-sm text-muted-foreground">
-          {formatDate(row.data_pagamento)}
+          {row.data_pagamento ? formatDate(row.data_pagamento) : "—"}
         </span>
       ),
     },

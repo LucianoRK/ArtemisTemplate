@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle2, Zap, Crown, Building } from "lucide-react";
+import { Zap, Crown, Building } from "lucide-react";
 import { formatCurrency, formatDate, getApiErrorMessage } from "@/lib/utils";
 import { toast } from "sonner";
 import type { Plano } from "@/types";
@@ -85,7 +85,7 @@ export default function AssinaturaPage() {
                   {formatCurrency(assinatura.plano?.preco ?? 0)}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  /{assinatura.plano?.intervalo === "anual" ? "ano" : "mês"}
+                  /{(assinatura.plano?.periodo_dias ?? 30) >= 365 ? "ano" : "mês"}
                 </p>
               </div>
             </div>
@@ -137,19 +137,16 @@ export default function AssinaturaPage() {
                     <div className="flex items-baseline gap-1 mt-2">
                       <span className="text-2xl font-bold">{formatCurrency(plano.preco)}</span>
                       <span className="text-sm text-muted-foreground">
-                        /{plano.intervalo === "anual" ? "ano" : "mês"}
+                        /{plano.periodo_dias >= 365 ? "ano" : "mês"}
                       </span>
                     </div>
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col gap-4">
-                    <ul className="space-y-2 flex-1">
-                      {plano.recursos?.map((recurso) => (
-                        <li key={recurso} className="flex items-center gap-2 text-sm">
-                          <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                          {recurso}
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="flex-1">
+                      {plano.descricao && (
+                        <p className="text-sm text-muted-foreground">{plano.descricao}</p>
+                      )}
+                    </div>
                     <Button
                       variant={isCurrentPlan ? "outline" : "gradient"}
                       disabled={isCurrentPlan || !isAdmin}

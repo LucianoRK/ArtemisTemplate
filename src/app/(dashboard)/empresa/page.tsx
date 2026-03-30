@@ -34,12 +34,12 @@ export default function EmpresaPage() {
 
   const { data: empresa, isLoading } = useQuery({
     queryKey: ["empresa", user?.empresa_id],
-    queryFn: () => empresaService.buscarPorId(user!.empresa_id),
+    queryFn: () => empresaService.buscarPorId(user!.empresa_id!),
     enabled: !!user?.empresa_id,
   });
 
   const atualizar = useMutation({
-    mutationFn: (data: Partial<FormData>) => empresaService.atualizar(user!.empresa_id, data),
+    mutationFn: (data: Partial<FormData>) => empresaService.atualizar(user!.empresa_id!, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["empresa", user?.empresa_id] });
       toast.success("Empresa atualizada com sucesso!");
@@ -91,8 +91,8 @@ export default function EmpresaPage() {
                 <p className="font-semibold text-lg">{empresa?.nome}</p>
                 <p className="text-sm text-muted-foreground">{empresa?.documento ? formatDocument(empresa.documento) : "—"}</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <Badge variant={!empresa?.deleted_at ? "success" : "outline"}>
-                    {!empresa?.deleted_at ? "Ativa" : "Inativa"}
+                  <Badge variant={!empresa?.excluido_em ? "success" : "outline"}>
+                    {!empresa?.excluido_em ? "Ativa" : "Inativa"}
                   </Badge>
                   {isAdmin && (
                     <Badge variant="secondary">Administrador</Badge>

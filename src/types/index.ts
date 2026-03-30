@@ -24,10 +24,10 @@ export interface Usuario {
   nome: string;
   email: string;
   role: UsuarioRole;
-  empresa_id: number;
+  is_owner: boolean;
+  empresa_id?: number | null;
   empresa?: Empresa;
-  ativo: boolean;
-  deleted_at?: string | null;
+  excluido_em?: string | null;
   criado_em: string;
   atualizado_em: string;
 }
@@ -48,14 +48,16 @@ export interface AtualizarUsuarioRequest {
 
 // ─── Empresa ──────────────────────────────────────────────────────────────────
 
+export type EmpresaStatus = "ativa" | "inativa" | "suspensa";
+
 export interface Empresa {
   id: number;
   nome: string | null;
   documento: string | null;
   email: string | null;
   telefone: string | null;
-  ativo: boolean;
-  deleted_at?: string | null;
+  status: EmpresaStatus;
+  excluido_em?: string | null;
   criado_em: string;
   atualizado_em: string;
 }
@@ -76,28 +78,28 @@ export interface AtualizarEmpresaRequest {
 
 // ─── Plano ────────────────────────────────────────────────────────────────────
 
-export type PlanoIntervalo = "mensal" | "anual";
-
 export interface Plano {
   id: number;
   nome: string;
-  descricao: string;
+  descricao: string | null;
+  valor: string;
+  periodo_dias: number;
+  ativo: boolean;
+  criado_em: string;
+  // campo computado pelo service (Number(valor))
   preco: number;
-  valor?: string;
-  intervalo: PlanoIntervalo;
-  mp_preference_id?: string;
-  recursos: string[];
-  ativo?: boolean;
-  criado_em?: string;
 }
 
 // ─── Assinatura ───────────────────────────────────────────────────────────────
+
+export type AssinaturaStatus = "ativa" | "inativa" | "cancelada" | "expirada";
 
 export interface Assinatura {
   id: number;
   empresa_id: number;
   plano_id: number;
   plano?: Plano;
+  status: AssinaturaStatus;
   data_inicio: string;
   data_fim: string | null;
   criado_em: string;
@@ -112,16 +114,19 @@ export interface CriarAssinaturaRequest {
 
 // ─── Pagamento ────────────────────────────────────────────────────────────────
 
-export type PagamentoStatus = "pago" | "pendente" | "falhou" | "reembolsado";
+export type PagamentoStatus = "pago" | "pendente" | "falhou" | "estornado";
+export type PagamentoMetodo = "pix" | "cartao_credito" | "boleto";
 
 export interface Pagamento {
   id: number;
-  assinatura_id: number;
+  empresa_id: number;
+  assinatura_id: number | null;
   assinatura?: Assinatura;
   valor: number;
   status: PagamentoStatus;
-  transaction_id: string;
-  data_pagamento: string;
+  metodo: PagamentoMetodo | null;
+  transaction_id: string | null;
+  data_pagamento: string | null;
   criado_em: string;
 }
 
@@ -129,8 +134,9 @@ export interface RegistrarPagamentoRequest {
   assinaturaId: number;
   valor: number;
   status: PagamentoStatus;
-  transaction_id: string;
-  data_pagamento: string;
+  metodo?: PagamentoMetodo;
+  transaction_id?: string;
+  data_pagamento?: string;
 }
 
 // ─── Configuracao ─────────────────────────────────────────────────────────────
@@ -139,6 +145,7 @@ export interface Configuracao {
   id: number;
   chave: string;
   valor: string;
+  descricao: string | null;
   criado_em: string;
   atualizado_em: string;
 }
@@ -146,10 +153,12 @@ export interface Configuracao {
 export interface CriarConfiguracaoRequest {
   chave: string;
   valor: string;
+  descricao?: string;
 }
 
 export interface AtualizarConfiguracaoRequest {
   valor: string;
+  descricao?: string;
 }
 
 // ─── Log ──────────────────────────────────────────────────────────────────────
@@ -159,13 +168,15 @@ export interface Log {
   entidade: string;
   entidade_id: number | null;
   acao: string;
+  payload?: Record<string, unknown> | null;
+  ip?: string | null;
   usuario?: Pick<Usuario, "id" | "nome" | "email">;
   criado_em: string;
 }
 
 // ─── Notificacao ──────────────────────────────────────────────────────────────
 
-export type NotificacaoTipo = "info" | "sucesso" | "aviso" | "erro";
+export type NotificacaoTipo = "info" | "sucesso" | "alerta" | "erro";
 
 export interface Notificacao {
   id: number;
@@ -173,7 +184,7 @@ export interface Notificacao {
   mensagem: string;
   tipo: NotificacaoTipo;
   lida: boolean;
-  usuario_id: number;
+  usuario_id?: number | null;
   criado_em: string;
 }
 
@@ -184,12 +195,12 @@ export interface NotificacoesNaoLidasResponse {
 // ─── Chamado ──────────────────────────────────────────────────────────────────
 
 export type ChamadoStatus = "aberto" | "respondido" | "fechado";
-export type ChamadoPrioridade = "baixa" | "media" | "alta";
+export type ChamadoPrioridade = "baixa" | "media" | "alta" | "urgente";
 
 export interface ChamadoMensagem {
   id: number;
   chamado_id: number;
-  usuario_id: number;
+  usuario_id?: number | null;
   usuario?: Pick<Usuario, "id" | "nome" | "email">;
   mensagem: string;
   interno: boolean;
@@ -201,7 +212,7 @@ export interface Chamado {
   assunto: string;
   status: ChamadoStatus;
   prioridade: ChamadoPrioridade;
-  usuario_id: number;
+  usuario_id?: number | null;
   usuario?: Pick<Usuario, "id" | "nome" | "email">;
   empresa_id: number;
   mensagens?: ChamadoMensagem[];

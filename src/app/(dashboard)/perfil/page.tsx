@@ -74,8 +74,8 @@ export default function PerfilPage() {
                 <Shield className="h-3 w-3 mr-1" />
                 {perfil?.role === "admin" ? "Administrador" : "Membro"}
               </Badge>
-              <Badge variant={!perfil?.deleted_at ? "success" : "outline"}>
-                {!perfil?.deleted_at ? "Ativo" : "Inativo"}
+              <Badge variant={!perfil?.excluido_em ? "success" : "outline"}>
+                {!perfil?.excluido_em ? "Ativo" : "Inativo"}
               </Badge>
             </div>
           </div>

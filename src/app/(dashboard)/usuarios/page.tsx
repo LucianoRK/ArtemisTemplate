@@ -128,8 +128,8 @@ export default function UsuariosPage() {
       key: "ativo",
       header: "Status",
       cell: (row: Usuario) => (
-        <Badge variant={!row.deleted_at ? "success" : "outline"}>
-          {!row.deleted_at ? "Ativo" : "Inativo"}
+        <Badge variant={!row.excluido_em ? "success" : "outline"}>
+          {!row.excluido_em ? "Ativo" : "Inativo"}
         </Badge>
       ),
     },

@@ -32,6 +32,7 @@ const statusLabel: Record<ChamadoStatus, string> = {
 };
 
 const prioridadeVariant: Record<ChamadoPrioridade, "destructive" | "warning" | "secondary" | "outline"> = {
+  urgente: "destructive",
   alta: "warning",
   media: "secondary",
   baixa: "outline",
@@ -39,7 +40,7 @@ const prioridadeVariant: Record<ChamadoPrioridade, "destructive" | "warning" | "
 
 const schema = z.object({
   assunto: z.string().min(5, "Assunto deve ter ao menos 5 caracteres"),
-  prioridade: z.enum(["baixa", "media", "alta"]),
+  prioridade: z.enum(["baixa", "media", "alta", "urgente"]),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -188,6 +189,7 @@ export default function ChamadosPage() {
                       <SelectItem value="baixa">Baixa</SelectItem>
                       <SelectItem value="media">Média</SelectItem>
                       <SelectItem value="alta">Alta</SelectItem>
+                      <SelectItem value="urgente">Urgente</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
