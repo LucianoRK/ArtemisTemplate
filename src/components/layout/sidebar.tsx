@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   LayoutDashboard, Users, CreditCard, Receipt,
-  FileText, Headphones, Zap, ChevronLeft, ChevronRight,
+  Headphones, Zap, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -40,12 +40,6 @@ const navItems = [
     title: "Chamados",
     href: "/chamados",
     icon: Headphones,
-  },
-  {
-    title: "Logs",
-    href: "/logs",
-    icon: FileText,
-    adminOnly: true,
   },
   {
     title: "Pagamento Registrar",
